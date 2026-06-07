@@ -514,7 +514,7 @@ function hitPlayer(index, type) {
 }
 
 function update(dt) {
-  const motionSpeed = world.speed * (world.gate ? .58 : 1);
+  const motionSpeed = world.speed * (world.gate ? .48 : 1);
   world.distance += dt * 12 * world.speed;
   world.speed = Math.min(2.6, 1.2 + world.distance / 750);
   world.roadOffset = (world.roadOffset + dt * 350 * motionSpeed) % 120;
