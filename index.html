@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#061416">
+  <title>ㅇ의 수학교실 | Math Highway</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gothic+A1:wght@400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+  <main class="page-shell">
+    <header class="hud" aria-label="게임 통계">
+      <div class="brand-block">
+        <p class="eyebrow">◢ MATH HIGHWAY</p>
+        <h1>ㅇ의 수학교실</h1>
+      </div>
+    </header>
+
+    <section class="game-frame" aria-label="Math Highway 게임">
+      <div class="split-games">
+        <div class="player-game player-one">
+          <canvas id="gameCanvas1" width="640" height="720" tabindex="0" aria-label="1P 자동차 게임"></canvas>
+          <div class="player-badge"><b>1P</b><span id="playerLabel1">PLAYER 1</span></div>
+          <div class="player-hud hidden" id="playerHud1"><span>★ <b id="scoreValue1">0</b></span><span>◆ <b id="coinValue1">0</b></span><span id="lifeValue1">♥♥♥</span><span>✓ <b id="correctValue1">0</b>/<b id="questionValue1">0</b></span></div>
+          <div class="player-toast" id="toast1">NICE!</div>
+        </div>
+        <div class="versus-line"><span>VS</span></div>
+        <div class="player-game player-two">
+          <canvas id="gameCanvas2" width="640" height="720" tabindex="0" aria-label="2P 자동차 게임"></canvas>
+          <div class="player-badge"><b>2P</b><span id="playerLabel2">PLAYER 2</span></div>
+          <div class="player-hud hidden" id="playerHud2"><span>★ <b id="scoreValue2">0</b></span><span>◆ <b id="coinValue2">0</b></span><span id="lifeValue2">♥♥♥</span><span>✓ <b id="correctValue2">0</b>/<b id="questionValue2">0</b></span></div>
+          <div class="player-toast" id="toast2">NICE!</div>
+        </div>
+      </div>
+      <div class="game-vignette" aria-hidden="true"></div>
+
+      <div class="top-ribbon">
+        <span class="live-dot"></span>
+        <span id="stageLabel">STAGE 01 · READY</span>
+        <button class="sound-toggle" id="soundButton" type="button" aria-pressed="true">♪ SOUND ON</button>
+        <span class="distance"><b id="distanceValue">0000</b> M</span>
+      </div>
+
+      <div class="question-panel hidden" id="questionPanel" aria-live="polite">
+        <span class="question-tag" id="questionTag">MATH GATE · BASIC</span>
+        <p id="questionText">문제가 여기에 표시됩니다.</p>
+        <small>정답 터널로 진입하세요!</small>
+      </div>
+
+      <div class="start-screen" id="startScreen">
+        <p class="insert-coin">- INSERT COIN -</p>
+        <h2>MATH<br><span>HIGHWAY</span></h2>
+        <div class="pixel-car" aria-hidden="true">
+          <i></i><i></i><i></i><i></i>
+        </div>
+        <div class="driver-panel two-player-names">
+          <p class="start-copy">장애물을 피하고 정답 터널을 통과하라!</p>
+          <div class="name-fields">
+            <label for="playerName1"><b>1P</b><span>DRIVER NAME</span><input id="playerName1" maxlength="8" value="플레이어1" autocomplete="off"></label>
+            <label for="playerName2"><b>2P</b><span>DRIVER NAME</span><input id="playerName2" maxlength="8" value="플레이어2" autocomplete="off"></label>
+          </div>
+        </div>
+        <button id="startButton" type="button">GAME START <span>↵</span></button>
+        <div class="controls">
+          <span><b>1P</b> <kbd>A</kbd><kbd>D</kbd></span>
+          <span><b>2P</b> <kbd>←</kbd><kbd>→</kbd></span>
+          <span><kbd>SPACE</kbd> 시작 / 재도전</span>
+        </div>
+      </div>
+
+      <div class="game-over hidden" id="gameOver">
+        <p>RUN ENDED</p>
+        <h2>GAME OVER</h2>
+        <div class="versus-results">
+          <div><em>1P</em><strong id="finalName1">PLAYER 1</strong><span>SCORE <b id="finalScore1">0</b></span><span>MATH <b id="finalMath1">0/0</b></span><button class="capture-consent" id="captureConsent1" type="button">📷 촬영 동의</button></div>
+          <p id="winnerText">RESULT</p>
+          <div><em>2P</em><strong id="finalName2">PLAYER 2</strong><span>SCORE <b id="finalScore2">0</b></span><span>MATH <b id="finalMath2">0/0</b></span><button class="capture-consent" id="captureConsent2" type="button">📷 촬영 동의</button></div>
+        </div>
+        <small class="capture-notice">촬영은 선택 사항이며, 동의한 플레이어의 이미지도 이 브라우저에만 저장됩니다.</small>
+        <button id="retryButton" type="button">RETRY <span>↵</span></button>
+      </div>
+
+      <div class="mobile-controls" aria-label="모바일 조작">
+        <div><small>1P</small><button id="leftButton1" type="button">◀</button><button id="rightButton1" type="button">▶</button></div>
+        <div><small>2P</small><button id="leftButton2" type="button">◀</button><button id="rightButton2" type="button">▶</button></div>
+      </div>
+    </section>
+
+    <section class="under-game">
+      <div class="mission-copy">
+        <p class="eyebrow">◫ HOW TO DRIVE</p>
+        <h2>달리면서 푸는<br>중등 수학 레이스</h2>
+        <p>자동차는 멈추지 않습니다. 트럭, 버스, 자전거를 피하고 코인을 모으세요. 문제가 나타나면 세 개의 답 중 올바른 터널을 선택해야 합니다.</p>
+      </div>
+      <div class="feature">
+        <span>01</span>
+        <h3>DODGE</h3>
+        <p>1P는 A D, 2P는 ← → 키로 동시 대결</p>
+      </div>
+      <div class="feature">
+        <span>02</span>
+        <h3>SOLVE</h3>
+        <p>중1·중2 수학 문제의 정답 터널 통과</p>
+      </div>
+      <div class="feature">
+        <span>03</span>
+        <h3>SPEED UP</h3>
+        <p>주행할수록 빨라지는 최고 속도 2.6X</p>
+      </div>
+    </section>
+
+    <section class="leaderboard" aria-label="명예의 드라이버">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">🏆 ARCADE RANKING</p>
+          <h2>명예의 드라이버</h2>
+        </div>
+        <button id="clearButton" class="ghost-button" type="button">기록 초기화</button>
+      </div>
+      <div class="honor-grid">
+        <section class="ranking-panel">
+          <div class="honor-title"><span>01</span><h3>총점 순위</h3><small>주행 점수 + 거리 M</small></div>
+          <ol id="leaderboardList"><li class="empty-rank">첫 번째 주행 기록을 기다리고 있습니다.</li></ol>
+        </section>
+        <section class="capture-gallery-panel">
+          <div class="honor-title"><span>02</span><h3>명예의 캡처</h3><small>촬영에 동의한 플레이어만 표시</small></div>
+          <div class="capture-gallery" id="captureGallery"><p class="empty-capture">아직 캡처 기록이 없습니다.</p></div>
+        </section>
+      </div>
+    </section>
+
+    <div class="capture-modal hidden" id="captureModal" role="dialog" aria-modal="true" aria-label="명예의 캡처 촬영">
+      <div class="capture-box">
+        <button class="modal-close" id="captureClose" type="button" aria-label="촬영 취소">×</button>
+        <p class="eyebrow">HALL OF FAME CAMERA</p>
+        <h2 id="captureTitle">1P 명예의 캡처</h2>
+        <div class="camera-stage">
+          <video id="captureVideo" autoplay muted playsinline></video>
+          <div class="privacy-cover">
+            <strong id="captureOverlayName">PLAYER</strong>
+            <span id="captureOverlayScore">TOTAL 0000</span>
+            <span id="captureOverlayDistance">0000 M</span>
+          </div>
+          <div class="countdown hidden" id="captureCountdown">3</div>
+        </div>
+        <p id="captureStatus">카메라 준비 중...</p>
+        <small class="local-only">이미지는 외부로 전송하지 않고 현재 브라우저에만 저장합니다.</small>
+        <button id="captureStart" type="button">3·2·1 촬영 시작</button>
+      </div>
+    </div>
+
+    <div class="photo-modal hidden" id="photoModal" role="dialog" aria-modal="true" aria-label="캡처 확대 보기">
+      <button class="modal-close" id="photoClose" type="button" aria-label="닫기">×</button>
+      <img id="photoLarge" alt="명예의 드라이버 캡처">
+    </div>
+
+    <footer>
+      <span>ㅇ의 수학교실</span>
+      <p>MATH HIGHWAY · 중등 수학 아케이드</p>
+      <span>© 2026</span>
+    </footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
