@@ -276,22 +276,9 @@ function prepareQuestion(question) {
   };
 }
 
-function buildQuestionDeck(level = 1, recentQuestions = []) {
+function buildQuestionDeck(recentQuestions = []) {
   const recent = new Set(recentQuestions);
-  let sources;
-  if (level === 1) {
-    sources = [...mathQuestions, ...randomQuestionFactories.flatMap(factory => [factory(), factory()])];
-  } else if (level === 2) {
-    sources = [
-      ...randomQuestionFactories.map(factory => factory()),
-      ...intermediateQuestionFactories.flatMap(factory => [factory(), factory(), factory()])
-    ];
-  } else {
-    sources = [
-      ...intermediateQuestionFactories.map(factory => factory()),
-      ...advancedQuestionFactories.flatMap(factory => [factory(), factory(), factory(), factory()])
-    ];
-  }
+  const sources = [...mathQuestions, ...randomQuestionFactories.flatMap(factory => [factory(), factory(), factory()])];
   const fresh = sources.filter(question => !recent.has(question.q));
   return shuffle(fresh.length >= 12 ? fresh : sources).map(prepareQuestion);
 }
@@ -387,7 +374,7 @@ function newPlayer(index) {
 const world = {
   running: false, distance: 0, speed: 1.2, roadOffset: 0,
   obstacles: [], pickups: [], gate: null, questionCount: 0, questionIndex: 0,
-  questionDeck: [], questionLevel: 1, recentQuestions: [],
+  questionDeck: [], recentQuestions: [],
   nextObstacle: 1.2, nextCoin: .8, nextQuestion: 9, lastTime: 0,
   players: [newPlayer(0), newPlayer(1)]
 };
@@ -428,9 +415,8 @@ function resetGame() {
   world.gate = null;
   world.questionCount = 0;
   world.questionIndex = 0;
-  world.questionLevel = 1;
   world.recentQuestions = [];
-  world.questionDeck = buildQuestionDeck(1);
+  world.questionDeck = buildQuestionDeck();
   world.nextObstacle = 1.3;
   world.nextCoin = .7;
   world.nextQuestion = 8;
@@ -460,13 +446,6 @@ function currentStage() {
   return Math.floor(world.distance / 300) + 1;
 }
 
-function currentQuestionLevel() {
-  const stage = currentStage();
-  if (stage >= 5 || world.questionCount >= 12) return 3;
-  if (stage >= 3 || world.questionCount >= 6) return 2;
-  return 1;
-}
-
 function spawnObstacle() {
   if (world.gate) return;
   const types = [
@@ -494,10 +473,8 @@ function spawnCoin() {
 }
 
 function spawnQuestion() {
-  const level = currentQuestionLevel();
-  if (level !== world.questionLevel || world.questionIndex >= world.questionDeck.length) {
-    world.questionLevel = level;
-    world.questionDeck = buildQuestionDeck(level, world.recentQuestions);
+  if (world.questionIndex >= world.questionDeck.length) {
+    world.questionDeck = buildQuestionDeck(world.recentQuestions);
     world.questionIndex = 0;
   }
   const question = world.questionDeck[world.questionIndex++];
@@ -507,7 +484,7 @@ function spawnQuestion() {
   world.obstacles = world.obstacles.filter(item => item.y > canvases[0].height * .6);
   world.pickups = [];
   world.gate = { y: -120, question, resolvedBy: [false, false] };
-  document.getElementById("questionTag").textContent = `MATH GATE · ${["BASIC", "APPLY", "HARD"][level - 1]}`;
+  document.getElementById("questionTag").textContent = "MATH GATE · BASIC";
   ui.questionText.textContent = question.q;
   ui.question.classList.remove("hidden");
   updateHud();
@@ -537,7 +514,7 @@ function hitPlayer(index, type) {
 }
 
 function update(dt) {
-  const motionSpeed = world.speed * (world.gate ? .76 : 1);
+  const motionSpeed = world.speed * (world.gate ? .58 : 1);
   world.distance += dt * 12 * world.speed;
   world.speed = Math.min(2.6, 1.2 + world.distance / 750);
   world.roadOffset = (world.roadOffset + dt * 350 * motionSpeed) % 120;
